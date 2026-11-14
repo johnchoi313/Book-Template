@@ -1,0 +1,34 @@
+name: Build book
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'manuscript/**'
+      - 'metadata.yaml'
+      - 'build.ps1'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Pandoc and XeLaTeX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc texlive-xetex texlive-latex-recommended texlive-fonts-recommended
+
+      - name: Build EPUB and PDF
+        shell: pwsh
+        run: ./build.ps1
+
+      - name: Upload book
+        uses: actions/upload-artifact@v4
+        with:
+          name: book
+          path: output/
+          retention-days: 30
